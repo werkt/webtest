@@ -19,18 +19,20 @@ def json_method(method):
     """Do a %(method)s request.  Very like the
     :class:`~webtest.TestApp.%(lmethod)s` method.
 
-    ``params`` are dumped to json and put in the body of the request.
+    ``params`` are passed through as the query parameters.
+    ``content_body`` are dumped to json and put in the body of the request.
     Content-Type is set to ``application/json``.
 
     Returns a :class:`webtest.TestResponse` object.
     """
 
-    def wrapper(self, url, params=NoDefault, **kw):
+    def wrapper(self, url, content_body=NoDefault, params=None, **kw):
         kw.setdefault('content_type', 'application/json')
-        if params is not NoDefault:
-            params = dumps(params, cls=self.JSONEncoder)
+        if content_body is not NoDefault:
+            content_body = dumps(content_body, cls=self.JSONEncoder)
         kw.update(
             params=params,
+            content_body=content_body,
             upload_files=None,
         )
         return self._gen_request(method, url, **kw)

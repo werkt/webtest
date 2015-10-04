@@ -91,24 +91,29 @@ class json_methodTest(unittest.TestCase):
 
     def test_json_method_request_calls(self):
         from webtest.utils import NoDefault
-        # no params
-        self.assertEquals(self.mock.foo_json('url', params=NoDefault, c='c'),
+        # no content_body
+        self.assertEquals(self.mock.foo_json('url', content_body=NoDefault, c='c'),
                           ('FOO', 'url', {'content_type': 'application/json',
+                                          'content_body': NoDefault,
                                           'c': 'c',
-                                          'params': NoDefault,
+                                          'params': None,
                                           'upload_files': None}))
-        # params dumped to json
-        self.assertEquals(self.mock.foo_json('url', params={'a': 'b'}, c='c'),
+        # content_body dumped to json
+        self.assertEquals(self.mock.foo_json('url', content_body={'a': 'b'}, c='c'),
                           ('FOO', 'url', {'content_type': 'application/json',
+                                          'content_body': json.dumps({'a': 'b'}),
                                           'c': 'c',
-                                          'params': json.dumps({'a': 'b'}),
+                                          'params': None,
                                           'upload_files': None}))
 
     def test_json_method_request_respects_content_type_argument(self):
+        from webtest.utils import NoDefault
+
         self.assertEquals(self.mock.foo_json('url', params={'a': 'b'}, c='c', content_type='application/vnd.api+json;charset=utf-8'),
                           ('FOO', 'url', {'content_type': 'application/vnd.api+json;charset=utf-8',
+                                          'content_body': NoDefault,
                                           'c': 'c',
-                                          'params': json.dumps({'a': 'b'}),
+                                          'params': {'a': 'b'},
                                           'upload_files': None}))
 
     def test_json_method_doc(self):

@@ -48,39 +48,39 @@ class TestTesting(unittest.TestCase):
 
     def test_post_unicode(self):
         res = self.app.post(
-            '/', params=dict(a='é'),
+            '/', content_body=dict(a='é'),
             content_type='application/x-www-form-urlencoded;charset=utf8')
         res.mustcontain('a=%C3%A9')
 
     def test_post_unicode_body(self):
         res = self.app.post(
-            '/', params='é',
+            '/', content_body='é',
             content_type='text/plain; charset=utf8')
         self.assertTrue(res.body.endswith(b'\xc3\xa9'))
         res.mustcontain('é')
 
     def test_post_params(self):
-        res = self.app.post('/', params=dict(a=1))
+        res = self.app.post('/', content_body=dict(a=1))
         res.mustcontain('a=1')
-        res = self.app.post('/', params=[('a', '1')])
+        res = self.app.post('/', content_body=[('a', '1')])
         res.mustcontain('a=1')
-        res = self.app.post_json('/', params=dict(a=1))
+        res = self.app.post_json('/', content_body=dict(a=1))
         res.mustcontain('{"a": 1}')
-        res = self.app.post_json('/', params=False)
+        res = self.app.post_json('/', content_body=False)
         res.mustcontain('false')
 
     def test_put_params(self):
-        res = self.app.put('/', params=dict(a=1))
+        res = self.app.put('/', content_body=dict(a=1))
         res.mustcontain('a=1')
-        res = self.app.put_json('/', params=dict(a=1))
+        res = self.app.put_json('/', content_body=dict(a=1))
         res.mustcontain('{"a": 1}')
-        res = self.app.put_json('/', params=False)
+        res = self.app.put_json('/', content_body=False)
         res.mustcontain('false')
 
     def test_delete_params(self):
-        res = self.app.delete('/', params=dict(a=1))
+        res = self.app.delete('/', content_body=dict(a=1))
         res.mustcontain('a=1')
-        res = self.app.delete_json('/', params=dict(a=1))
+        res = self.app.delete_json('/', content_body=dict(a=1))
         res.mustcontain('{"a": 1}')
 
     def test_options(self):
@@ -183,4 +183,4 @@ class TestTesting(unittest.TestCase):
         class FakeDict(object):
             def items(self):
                 return [('a', '10'), ('a', '20')]
-        self.app.post('/params', params=FakeDict())
+        self.app.post('/params', content_body=FakeDict())

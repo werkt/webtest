@@ -603,8 +603,10 @@ class Form(object):
         fields = self.submit_fields(name, index=index, submit_value=value)
         if self.method.upper() != "GET":
             args.setdefault("content_type",  self.enctype)
-        return self.response.goto(self.action, method=self.method,
-                                  params=fields, **args)
+            args["content_body"] = fields
+        else:
+            args["params"] = fields
+        return self.response.goto(self.action, method=self.method, **args)
 
     def upload_fields(self):
         """Return a list of file field tuples of the form::

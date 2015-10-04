@@ -299,48 +299,15 @@ class TestApp(object):
         :returns: :class:`webtest.TestResponse` instance.
 
         """
-        environ = self._make_environ(extra_environ)
-        url = str(url)
-        url = self._remove_fragment(url)
-        if params:
-            if not isinstance(params, string_types):
-                params = urlencode(params, doseq=True)
-            if str('?') in url:
-                url += str('&')
-            else:
-                url += str('?')
-            url += params
-        if str('?') in url:
-            url, environ['QUERY_STRING'] = url.split(str('?'), 1)
-        else:
-            environ['QUERY_STRING'] = str('')
-        req = self.RequestClass.blank(url, environ)
-        if xhr:
-            headers = self._add_xhr_header(headers)
-        if headers:
-            req.headers.update(headers)
-        return self.do_request(req, status=status,
-                               expect_errors=expect_errors)
+        return self._gen_request('GET', url, params=params, headers=headers,
+                                 extra_environ=extra_environ, status=status,
+                                 expect_errors=expect_errors, xhr=xhr)
 
-    def post(self, url, params='', headers=None, extra_environ=None,
+    def post(self, url, content_body='', headers=None, extra_environ=None,
              status=None, upload_files=None, expect_errors=False,
-             content_type=None, xhr=False):
+             content_type=None, xhr=False, params=None):
         """
         Do a POST request. Similar to :meth:`~webtest.TestApp.get`.
-
-        :param params:
-            Are put in the body of the request. If params is a
-            iterator it will be urlencoded, if it is string it will not
-            be encoded, but placed in the body directly.
-
-            Can be a collections.OrderedDict with
-            :class:`webtest.forms.Upload` fields included::
-
-
-            app.post('/myurl', collections.OrderedDict([
-                ('textfield1', 'value1'),
-                ('uploadfield', webapp.Upload('filename.txt', 'contents'),
-                ('textfield2', 'value2')])))
 
         :param upload_files:
             It should be a list of ``(fieldname, filename, file_content)``.
@@ -353,6 +320,20 @@ class TestApp(object):
         :type content_type:
             string
 
+        :param content_body:
+            Are put in the body of the request. If content_body is a
+            iterator it will be urlencoded, if it is string it will not
+            be encoded, but placed in the body directly.
+
+            Can be a collections.OrderedDict with
+            :class:`webtest.forms.Upload` fields included::
+
+
+            app.post('/myurl', collections.OrderedDict([
+                ('textfield1', 'value1'),
+                ('uploadfield', webapp.Upload('filename.txt', 'contents'),
+                ('textfield2', 'value2')])))
+
         :param xhr:
             If this is true, then marks response as ajax. The same as
             headers={'X-REQUESTED-WITH': 'XMLHttpRequest', }
@@ -362,65 +343,60 @@ class TestApp(object):
         :returns: :class:`webtest.TestResponse` instance.
 
         """
-        if xhr:
-            headers = self._add_xhr_header(headers)
         return self._gen_request('POST', url, params=params, headers=headers,
                                  extra_environ=extra_environ, status=status,
                                  upload_files=upload_files,
                                  expect_errors=expect_errors,
-                                 content_type=content_type)
+                                 content_type=content_type,
+                                 content_body=content_body, xhr=xhr)
 
-    def put(self, url, params='', headers=None, extra_environ=None,
+    def put(self, url, content_body='', headers=None, extra_environ=None,
             status=None, upload_files=None, expect_errors=False,
-            content_type=None, xhr=False):
+            content_type=None, xhr=False, params=None):
         """
         Do a PUT request. Similar to :meth:`~webtest.TestApp.post`.
 
         :returns: :class:`webtest.TestResponse` instance.
 
         """
-        if xhr:
-            headers = self._add_xhr_header(headers)
         return self._gen_request('PUT', url, params=params, headers=headers,
                                  extra_environ=extra_environ, status=status,
                                  upload_files=upload_files,
                                  expect_errors=expect_errors,
                                  content_type=content_type,
-                                 )
+                                 content_body=content_body, xhr=xhr)
 
-    def patch(self, url, params='', headers=None, extra_environ=None,
+    def patch(self, url, content_body='', headers=None, extra_environ=None,
               status=None, upload_files=None, expect_errors=False,
-              content_type=None, xhr=False):
+              content_type=None, xhr=False, params=None):
         """
         Do a PATCH request. Similar to :meth:`~webtest.TestApp.post`.
 
         :returns: :class:`webtest.TestResponse` instance.
 
         """
-        if xhr:
-            headers = self._add_xhr_header(headers)
         return self._gen_request('PATCH', url, params=params, headers=headers,
                                  extra_environ=extra_environ, status=status,
                                  upload_files=upload_files,
                                  expect_errors=expect_errors,
-                                 content_type=content_type)
+                                 content_type=content_type,
+                                 content_body=content_body, xhr=xhr)
 
-    def delete(self, url, params='', headers=None,
+    def delete(self, url, content_body='', headers=None,
                extra_environ=None, status=None, expect_errors=False,
-               content_type=None, xhr=False):
+               content_type=None, xhr=False, params=None):
         """
         Do a DELETE request. Similar to :meth:`~webtest.TestApp.get`.
 
         :returns: :class:`webtest.TestResponse` instance.
 
         """
-        if xhr:
-            headers = self._add_xhr_header(headers)
         return self._gen_request('DELETE', url, params=params, headers=headers,
                                  extra_environ=extra_environ, status=status,
                                  upload_files=None,
                                  expect_errors=expect_errors,
-                                 content_type=content_type)
+                                 content_type=content_type,
+                                 content_body=content_body, xhr=xhr)
 
     def options(self, url, headers=None, extra_environ=None,
                 status=None, expect_errors=False, xhr=False):
@@ -430,12 +406,10 @@ class TestApp(object):
         :returns: :class:`webtest.TestResponse` instance.
 
         """
-        if xhr:
-            headers = self._add_xhr_header(headers)
         return self._gen_request('OPTIONS', url, headers=headers,
                                  extra_environ=extra_environ, status=status,
                                  upload_files=None,
-                                 expect_errors=expect_errors)
+                                 expect_errors=expect_errors, xhr=xhr)
 
     def head(self, url, headers=None, extra_environ=None,
              status=None, expect_errors=False, xhr=False):
@@ -445,12 +419,10 @@ class TestApp(object):
         :returns: :class:`webtest.TestResponse` instance.
 
         """
-        if xhr:
-            headers = self._add_xhr_header(headers)
         return self._gen_request('HEAD', url, headers=headers,
                                  extra_environ=extra_environ, status=status,
                                  upload_files=None,
-                                 expect_errors=expect_errors)
+                                 expect_errors=expect_errors, xhr=xhr)
 
     post_json = utils.json_method('POST')
     put_json = utils.json_method('PUT')
@@ -683,10 +655,10 @@ class TestApp(object):
         scheme, netloc, path, query, fragment = urlparse.urlsplit(url)
         return urlparse.urlunsplit((scheme, netloc, path, query, ""))
 
-    def _gen_request(self, method, url, params=utils.NoDefault,
+    def _gen_request(self, method, url, content_body=utils.NoDefault,
                      headers=None, extra_environ=None, status=None,
                      upload_files=None, expect_errors=False,
-                     content_type=None):
+                     content_type=None, params=None, xhr=False):
         """
         Do a generic request.
         """
@@ -696,27 +668,27 @@ class TestApp(object):
         inline_uploads = []
 
         # this supports OrderedDict
-        if isinstance(params, dict) or hasattr(params, 'items'):
-            params = list(params.items())
+        if isinstance(content_body, dict) or hasattr(content_body, 'items'):
+            content_body = list(content_body.items())
 
-        if isinstance(params, (list, tuple)):
-            inline_uploads = [v for (k, v) in params
+        if isinstance(content_body, (list, tuple)):
+            inline_uploads = [v for (k, v) in content_body
                               if isinstance(v, (forms.File, forms.Upload))]
 
         if len(inline_uploads) > 0:
-            content_type, params = self.encode_multipart(
-                params, upload_files or ())
+            content_type, content_body = self.encode_multipart(
+                content_body, upload_files or ())
             environ['CONTENT_TYPE'] = content_type
         else:
-            params = utils.encode_params(params, content_type)
+            content_body = utils.encode_params(content_body, content_type)
             if upload_files or \
                 (content_type and
                  to_bytes(content_type).startswith(b'multipart')):
-                params = urlparse.parse_qsl(params, keep_blank_values=True)
-                content_type, params = self.encode_multipart(
-                    params, upload_files or ())
+                content_body = urlparse.parse_qsl(content_body, keep_blank_values=True)
+                content_type, content_body = self.encode_multipart(
+                    content_body, upload_files or ())
                 environ['CONTENT_TYPE'] = content_type
-            elif params:
+            elif content_body:
                 environ.setdefault('CONTENT_TYPE',
                                    str('application/x-www-form-urlencoded'))
 
@@ -725,11 +697,25 @@ class TestApp(object):
         environ['REQUEST_METHOD'] = str(method)
         url = str(url)
         url = self._remove_fragment(url)
+        if params:
+            if not isinstance(params, string_types):
+                params = urlencode(params, doseq=True)
+            if str('?') in url:
+                url += str('&')
+            else:
+                url += str('?')
+            url += params
+        if str('?') in url:
+            url, environ['QUERY_STRING'] = url.split(str('?'), 1)
+        else:
+            environ['QUERY_STRING'] = str('')
         req = self.RequestClass.blank(url, environ)
-        if isinstance(params, text_type):
-            params = params.encode(req.charset or 'utf8')
-        req.environ['wsgi.input'] = BytesIO(params)
-        req.content_length = len(params)
+        if isinstance(content_body, text_type):
+            content_body = content_body.encode(req.charset or 'utf8')
+        req.environ['wsgi.input'] = BytesIO(content_body)
+        req.content_length = len(content_body)
+        if xhr:
+            headers = self._add_xhr_header(headers)
         if headers:
             req.headers.update(headers)
         return self.do_request(req, status=status,

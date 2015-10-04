@@ -287,6 +287,10 @@ class TestResponse(webob.Response):
             if 'content_type' in args:
                 args['content_type'] = to_str(args['content_type'])
 
+            if 'content_body' in args:
+                args['content_body'] = [tuple(map(to_str, p))
+                                        for p in args['content_body']]
+
         if method == 'get':
             method = self.test_app.get
         else:

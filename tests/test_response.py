@@ -167,7 +167,7 @@ class TestResponse(unittest.TestCase):
 
     def test_mustcontains(self):
         app = webtest.TestApp(debug_app)
-        res = app.post('/', params='foobar')
+        res = app.post('/', content_body='foobar')
         res.mustcontain('foobar')
         self.assertRaises(IndexError, res.mustcontain, 'not found')
         res.mustcontain('foobar', no='not found')
